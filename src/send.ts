@@ -1,10 +1,12 @@
 import { CHANNEL_TOKEN } from "../env";
+import { LINE_LINK } from "../env";
+
 import { scrape } from "./scrape";
-export async function send() {
+export const send = async (): Promise<number> => {
   const  articles = await scrape()
   const  article = articles[0]
 
-  const response = await fetch("https://api.line.me/v2/bot/message/broadcast", {
+  const response = await fetch(LINE_LINK, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,12 +16,8 @@ export async function send() {
       messages: [
         {
           type: "text",
-          text: `${article.title}`,
-        },
-        {
-          type: "text",
-          text: "Hello, world2",
-        },
+          text: `${article.title}   \n❤️${article.iine} \n${article.link}`,
+        }
       ],
     }),
   });

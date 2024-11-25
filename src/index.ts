@@ -16,8 +16,18 @@ app.get("/scrape", async (c) => {
   return c.json(result)
 });
 
+const waitSend = async () => {
+  const result = await send();
+  console.log(result); // 結果をログに出力
+}
 
+const scheduled: ExportedHandlerScheduledHandler = async (event, env, ctx) => {
+  ctx.waitUntil(waitSend())
+}
+
+export default {
+  fetch: app.fetch,
+  scheduled,
+}
 
 app.fire();
-
-export default app;
