@@ -1,25 +1,25 @@
-import { CHANNEL_TOKEN } from "../env";
-import { LINE_LINK } from "../env";
+import { BOT_OAUTH_TOKEN } from "../env";
+import { SLACK_LINK } from "../env";
+import { CHANNEL_ID } from "../env";
 
 import { scrape } from "./scrape";
-export const send = async (): Promise<number> => {
+export const send = async (): Promise<object> => {
   const  articles = await scrape()
   const  article = articles[0]
+  const params = new URLSearchParams();
+  params.append("channel", CHANNEL_ID);
+  params.append("text", `${article.title}   \n❤️${article.iine} \n${article.link}`,);
 
-  const response = await fetch(LINE_LINK, {
+  const response = await fetch(SLACK_LINK, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${CHANNEL_TOKEN}`
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Bearer ${BOT_OAUTH_TOKEN}`
     },
-    body: JSON.stringify({
-      messages: [
-        {
-          type: "text",
-          text: `${article.title}   \n❤️${article.iine} \n${article.link}`,
-        }
-      ],
-    }),
+    body: params
   });
-  return await response.status;
+  console.log("Response body:", await response.text());
+
+  return await response;
 }
+
