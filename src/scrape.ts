@@ -1,47 +1,35 @@
 import * as cheerio from "cheerio";
-import { QIITA_LINK } from "../env";
+import { ZENN_LINK } from "../env";
 
 export async function scrape() {
-  class QiitaArticle {
+  class ZennArticle {
     date: string;
-    author: string;
     title: string;
-    tags: string[];
-    iine: number;
     link: string;
 
     constructor({
       date,
-      author,
       title,
-      tags,
-      iine,
       link,
     }: {
       date: string;
-      author: string;
       title: string;
-      tags: string[];
-      iine: number;
       link: string;
     }) {
       this.date = date;
-      this.author = author;
       this.title = title;
-      this.tags = tags;
-      this.iine = iine;
       this.link = link;
     }
   }
 
-  class QiitaArticles {
-    articles: QiitaArticle[];
+  class ZennArticles {
+    articles: ZennArticle[];
 
     constructor() {
       this.articles = [];
     }
 
-    addArticle(article: QiitaArticle) {
+    addArticle(article: ZennArticle) {
       this.articles.push(article);
     }
 
@@ -49,39 +37,32 @@ export async function scrape() {
       return this.articles;
     }
   }
-  const articles = new QiitaArticles();
+
+  const articles = new ZennArticles();
+
   const $ = cheerio.load(
-    await fetch(QIITA_LINK, {
+    await fetch(ZENN_LINK, {
       headers: {
         "user-agent": "bot",
       },
     }).then((res) => res.text())
   );
-  const elements = $(".style-1p44k52").find("article");
+
+  const elements = $(
+    "#tech-trend .ArticleList_listContainer__m2qg0 .ArticleList_content__a7csX"
+  );
+
   elements.each((index, element) => {
-    const header = $(element).find("header");
-    const date = $(header).find("time").text();
-    const author = $(header).find("p").text();
-    const title = $(element).find("h2 > a").text();
-    const link = String($(element).find("h2 > a").attr("href"));
-    const footer = $(element).find("footer");
-    const tags = $(footer).find("li");
-    const tagTexts: string[] = [];
-    tags.each((index, tag) => {
-      tagTexts.push($(tag).text());
-    });
+    const date = $(element).find("time").attr("datetime");
+    const title = $(element).find("h2").text();
+    const link = $(element).find("a").attr("href");
 
-    const iine = Number($(footer).find("span").text());
-
-    const article = new QiitaArticle({
-      date: date,
-      author: author,
+    const article = new ZennArticle({
+      date: date ?? "",
       title: title,
-      tags: tagTexts,
-      iine: iine,
-      link: link,
+      link: link ?? "",
     });
     articles.addArticle(article);
   });
-  return articles.getArticles()
+  return articles.getArticles();
 }
