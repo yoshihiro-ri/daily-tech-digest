@@ -3,17 +3,26 @@ import { send } from "./send";
 import { scrape } from "./scrape";
 const app = new Hono();
 
-app.get("/", async (c) => {
-  const result = await send();
-  console.log(result);
-  console.log("===================");
-  return c.json(result);
-});
+app.get("/", (c) => c.text("Hono!"));
 
 app.get("/scrape", async (c) => {
   const result = await scrape();
   console.log(result);
   return c.json(result);
+});
+
+app.get("/send", async (c) => {
+  const result = await send();
+  const body = await result.json();
+
+  return c.json({
+    status: result.status,
+    statusText: result.statusText,
+    headers: [...result.headers.entries()], // Headers オブジェクトを配列に変換
+    ok: result.ok,
+    redirected: result.redirected,
+    body: body,
+  });
 });
 
 // const waitSend = async () => {
