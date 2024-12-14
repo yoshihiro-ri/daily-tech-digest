@@ -1,7 +1,14 @@
+import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { send } from "./send";
 import { scrape } from "./scrape";
-const app = new Hono();
+import { users } from "../schema";
+
+type Bindings = {
+  DB: D1Database;
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get("/", (c) => c.text("Hono!"));
 
@@ -25,6 +32,9 @@ app.get("/send", async (c) => {
   });
 });
 
+import { crud_users } from "./users";
+app.route("/crud_users", crud_users);
+
 // const waitSend = async () => {
 //   const result = await send();
 //   console.log(result); // 結果をログに出力
@@ -40,3 +50,5 @@ app.get("/send", async (c) => {
 // }
 
 app.fire();
+
+export default app;
