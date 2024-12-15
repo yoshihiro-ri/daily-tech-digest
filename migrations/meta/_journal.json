@@ -8,6 +8,20 @@
       "when": 1734162775595,
       "tag": "0000_natural_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1734238282553,
+      "tag": "0001_aspiring_rocket_raccoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1734238399497,
+      "tag": "0002_aberrant_fallen_one",
+      "breakpoints": true
     }
   ]
 }

@@ -26,8 +26,6 @@ user.post("/", async (c) => {
 
   const result = await db.insert(users).values({
     name: params.name,
-    email: params.email,
-    password: params.password,
   });
 
   return c.json(result);
