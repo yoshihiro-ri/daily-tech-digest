@@ -1,24 +1,25 @@
 import * as cheerio from "cheerio";
 import { ZENN_LINK } from "../../../env";
+import { DAILY_SAVE_ARTICLE_LIMIT } from "../../../env";
 
 export async function scrape() {
   class ZennArticle {
-    date: string;
+    posted_at: string;
     title: string;
-    link: string;
+    url: string;
 
     constructor({
-      date,
+      posted_at,
       title,
-      link,
+      url,
     }: {
-      date: string;
+      posted_at: string;
       title: string;
-      link: string;
+      url: string;
     }) {
-      this.date = date;
+      this.posted_at = posted_at;
       this.title = title;
-      this.link = link;
+      this.url = url;
     }
   }
 
@@ -38,6 +39,16 @@ export async function scrape() {
     }
   }
 
+  const save = async (article: ZennArticle) => {
+    await fetch("http://127.0.0.1:8787/crud/article", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(article),
+    }).then((res) => res.text());
+  };
+
   const articles = new ZennArticles();
 
   const $ = cheerio.load(
@@ -53,16 +64,23 @@ export async function scrape() {
   );
 
   elements.each((index, element) => {
-    const date = $(element).find("time").attr("datetime");
+    if (index >= DAILY_SAVE_ARTICLE_LIMIT) {
+      return false; // ループを終了する
+    }
+    const posted_at = $(element).find("time").attr("datetime");
     const title = $(element).find("h2").text();
-    const link = $(element).find("a").attr("href");
+    const url = $(element).find("a").attr("href");
 
     const article = new ZennArticle({
-      date: date ?? "",
+      posted_at: posted_at ?? "",
       title: title,
-      link: link ?? "",
+      url: ZENN_LINK + url ?? "",
     });
+
+    save(article);
+
     articles.addArticle(article);
   });
+
   return articles.getArticles();
 }

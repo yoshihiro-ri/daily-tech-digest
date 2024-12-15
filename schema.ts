@@ -1,4 +1,5 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
 export const users = sqliteTable(
   "users",
@@ -16,8 +17,12 @@ export const articles = sqliteTable(
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     title: text("title").notNull(),
     url: text("url").notNull(),
-    postedAt: integer("posted_at"),
-    sendAt: integer("created_at").default(Date.now()),
+    isSend: integer("is_send", { mode: "boolean" }).notNull().default(false),
+    posted_at: integer("posted_at"),
+    created_at: integer("created_at").default(Date.now()),
+    updated_at: text("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
   },
   () => []
 );
