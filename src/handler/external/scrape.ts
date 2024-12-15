@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { ZENN_LINK } from "../env";
+import { ZENN_LINK } from "../../../env";
 
 export async function scrape() {
   class ZennArticle {

@@ -1,17 +1,17 @@
 import { drizzle } from "drizzle-orm/d1";
-import { users } from "../schema";
+import { users } from "../../../schema";
 import { Hono } from "hono";
 
 type Bindings = {
   DB: D1Database;
 };
 
-const crud_users = new Hono<{ Bindings: Bindings }>();
+const user = new Hono<{ Bindings: Bindings }>();
 
 /*****************************************
  * get users
  *****************************************/
-crud_users.get("/", async (c) => {
+user.get("/", async (c) => {
   const db = drizzle(c.env.DB);
   const result = await db.select().from(users).all();
   return c.json(result);
@@ -20,7 +20,7 @@ crud_users.get("/", async (c) => {
 /*****************************************
  * create users
  *****************************************/
-crud_users.post("/", async (c) => {
+user.post("/", async (c) => {
   const params = await c.req.json<typeof users.$inferSelect>();
   const db = drizzle(c.env.DB);
 
@@ -32,4 +32,4 @@ crud_users.post("/", async (c) => {
 
   return c.json(result);
 });
-export { crud_users };
+export { user };

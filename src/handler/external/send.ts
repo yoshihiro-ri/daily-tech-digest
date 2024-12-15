@@ -1,7 +1,7 @@
-import { BOT_OAUTH_TOKEN } from "../env";
-import { SLACK_LINK } from "../env";
-import { CHANNEL_ID } from "../env";
-import { ZENN_LINK } from "../env";
+import { BOT_OAUTH_TOKEN } from "../../../env";
+import { SLACK_LINK } from "../../../env";
+import { CHANNEL_ID } from "../../../env";
+import { ZENN_LINK } from "../../../env";
 
 import { scrape } from "./scrape";
 
