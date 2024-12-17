@@ -48,7 +48,8 @@ const send_thread_message = async (
   params.append("channel", CHANNEL_ID);
   params.append("thread_ts", thread_ts);
   params.append("text", `${article.url}`);
-  console.log(article.url);
+  params.append("unfurl_links", true);
+  params.append("unfurl_media", "true");
 
   const response = await fetch(SLACK_LINK, {
     method: "POST",
