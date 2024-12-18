@@ -1,8 +1,7 @@
 import { articles } from "../../../schema";
 import * as cheerio from "cheerio";
 import { ZENN_LINK } from "../../../env";
-import { DAILY_SAVE_ARTICLE_LIMIT } from "../../../env";
-import { drizzle, DrizzleD1Database } from "drizzle-orm/d1";
+import { DrizzleD1Database } from "drizzle-orm/d1";
 
 class ZennArticle {
   posted_at: string;
@@ -56,10 +55,6 @@ export async function scrape(
   const savedArticleTitles = await getSavedArticleTitles(db);
 
   elements.each((index, element) => {
-    if (index >= DAILY_SAVE_ARTICLE_LIMIT) {
-      return false;
-    }
-
     const posted_at = $(element).find("time").attr("datetime");
     const title = $(element).find("h2").text();
     const url = $(element).find("a").attr("href");
@@ -74,7 +69,7 @@ export async function scrape(
       url: ZENN_LINK + url ?? "",
     });
 
-    save(article);
+    save(db, article);
 
     articles.addArticle(article);
   });
@@ -92,14 +87,18 @@ const fetchArticles = async () => {
   return $;
 };
 
-const save = async (article: ZennArticle) => {
-  await fetch("http://127.0.0.1:8787/crud/article", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(article),
-  }).then((res) => res.text());
+const save = async (
+  db: DrizzleD1Database<Record<string, never>> & {
+    $client: D1Database;
+  },
+  article: ZennArticle
+) => {
+  const result = await db.insert(articles).values({
+    title: article.title,
+    url: article.url,
+    posted_at: article.posted_at,
+  });
+  return result;
 };
 
 const getSavedArticleTitles = async (

@@ -2,25 +2,36 @@ import { BOT_OAUTH_TOKEN } from "../../../env";
 import { SLACK_LINK } from "../../../env";
 import { CHANNEL_ID } from "../../../env";
 import { DAILY_SEND_ARTICLE_LIMIT } from "../../../env";
+import { DrizzleD1Database } from "drizzle-orm/d1";
+import { articles } from "../../../schema";
+import { inArray, eq } from "drizzle-orm";
 
 type article = {
+  id: number;
   posted_at: string;
   title: string;
   url: string;
 };
 
-export const send = async (): Promise<any> => {
+export const send = async (
+  db: DrizzleD1Database<Record<string, never>> & {
+    $client: D1Database;
+  }
+): Promise<any> => {
   const send_main_message_result = await send_main_message();
   const body = await send_main_message_result.json();
-  const today_articles: article[] = await articles();
-  console.log(today_articles);
+  const unsentArticles: article[] = await getUnsentArticles(db);
 
-  for (const article of today_articles) {
-    console.log(article);
+  const sentArticleIds = [];
+
+  for (const article of unsentArticles) {
     await send_thread_message(body.ts, article);
+    sentArticleIds.push(article.id);
   }
 
-  return today_articles;
+  markArticleAsSent(db, sentArticleIds);
+
+  return unsentArticles;
 };
 
 const send_main_message = async (): Promise<Response> => {
@@ -63,12 +74,33 @@ const send_thread_message = async (
   return await response;
 };
 
-const articles = async (): Promise<article[]> => {
-  const result = await fetch(
-    `http://127.0.0.1:8787/crud/article?limit=${DAILY_SEND_ARTICLE_LIMIT}`,
-    {
-      method: "GET",
-    }
-  );
-  return result.json();
+const getUnsentArticles = async (
+  db: DrizzleD1Database<Record<string, never>> & {
+    $client: D1Database;
+  }
+): Promise<article[]> => {
+  const result = await db
+    .select({
+      id: articles.id,
+      title: articles.title,
+      posted_at: articles.posted_at,
+      url: articles.url,
+    })
+    .from(articles)
+    .where(eq(articles.is_send, false))
+    .limit(DAILY_SEND_ARTICLE_LIMIT);
+
+  return result;
+};
+
+const markArticleAsSent = async (
+  db: DrizzleD1Database<Record<string, never>> & {
+    $client: D1Database;
+  },
+  article_ids: number[]
+) => {
+  await db
+    .update(articles)
+    .set({ is_send: true })
+    .where(inArray(articles.id, article_ids));
 };

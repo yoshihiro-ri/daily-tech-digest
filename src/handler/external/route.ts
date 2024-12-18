@@ -21,10 +21,8 @@ external.get("/scrape", async (c) => {
 
 // 記事の配信
 external.get("/send", async (c) => {
-  const result = await send();
-
-  // return c.json({ ts: body.message.ts });
-
+  const db = drizzle(c.env.DB);
+  const result = await send(db);
   return c.json({
     result,
   });

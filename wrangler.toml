@@ -7,18 +7,20 @@ compatibility_date = "2024-11-10"
 # [vars]
 # MY_VAR = "my-variable"
 
+
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# id = "xxxxxxwrnxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
+[[d1_databases]]
+binding = "DB"
+database_name = "tech-digest-db"
+database_id = "34d58085-4737-48a1-8e09-91581d1ba2bc"
+migrations_dir = "./migrations"
 
 # [ai]
 # binding = "AI"
@@ -26,3 +28,6 @@ compatibility_date = "2024-11-10"
 # [observability]
 # enabled = true
 # head_sampling_rate = 1
+
+[dev]
+ip = "127.0.0.1"

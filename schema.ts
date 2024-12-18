@@ -17,8 +17,8 @@ export const articles = sqliteTable(
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     title: text("title").notNull(),
     url: text("url").notNull(),
-    isSend: integer("is_send", { mode: "boolean" }).notNull().default(false),
-    posted_at: integer("posted_at"),
+    is_send: integer("is_send", { mode: "boolean" }).notNull().default(false),
+    posted_at: text("posted_at").notNull(),
     created_at: integer("created_at").default(Date.now()),
     updated_at: text("updated_at")
       .default(sql`CURRENT_TIMESTAMP`)
